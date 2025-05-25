@@ -1,0 +1,89 @@
+<div class="container">
+  <h2>Book List</h2>
+  <button (click)="addNewBook()">Add New Book</button>
+  <br /><br />
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Authors</th>
+        <th>Category</th>
+        <th>Year</th>
+        <th>Price</th>
+        <th>ISBN</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let book of books"
+        (click)="selectBook(book)"
+        [class.selected]="selectedBook?.isbn === book.isbn"
+      >
+        <td>{{ book.title }}</td>
+        <td>{{ book.authors.join(", ") }}</td>
+        <td>{{ book.category }}</td>
+        <td>{{ book.year }}</td>
+        <td>{{ book.price }}</td>
+        <td>{{ book.isbn }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========================================================================= -->
+
+<div *ngIf="selectedBook" class="edit-form">
+  <h3>{{ isNewBook ? "Add New Book" : "Edit Book" }}</h3>
+  <form (ngSubmit)="updateBook()">
+    <label>
+      ISBN:
+      <input [(ngModel)]="selectedBook.isbn" name="isbn" required />
+    </label>
+    <br />
+    <label>
+      Title:
+      <input [(ngModel)]="selectedBook.title" name="title" required />
+    </label>
+    <br />
+    <label>
+      Authors (comma separated):
+      <input [(ngModel)]="authorsInput" name="authors" required />
+    </label>
+    <br />
+    <label>
+      Category:
+      <input [(ngModel)]="selectedBook.category" name="category" required />
+    </label>
+    <br />
+    <label>
+      Language:
+      <input [(ngModel)]="selectedBook.language" name="language" required />
+    </label>
+    <br />
+    <label>
+      Year:
+      <input
+        type="number"
+        [(ngModel)]="selectedBook.year"
+        name="year"
+        required
+      />
+    </label>
+    <br />
+    <label>
+      Price:
+      <input
+        type="number"
+        [(ngModel)]="selectedBook.price"
+        name="price"
+        required
+      />
+    </label>
+    <br /><br />
+    <button type="submit">Save</button>
+    <button type="button" (click)="cancelEdit()">Cancel</button>
+    <button *ngIf="!isNewBook" type="button" (click)="deleteBook()">
+      Delete
+    </button>
+  </form>
+</div>
