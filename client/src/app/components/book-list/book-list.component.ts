@@ -1,21 +1,34 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 import { Book, BookService } from '../../services/book.service';
 
 @Component({
   selector: 'app-book-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+  ],
   templateUrl: './book-list.component.html',
   styleUrls: ['./book-list.component.css'],
 })
 export class BookListComponent implements OnInit {
   books: Book[] = [];
   selectedBook: Book | null = null;
-
   authorsInput: string = '';
   isNewBook: boolean = false;
+  displayedColumns = ['title', 'authors', 'category', 'year', 'price', 'isbn'];
 
   constructor(private bookService: BookService) {}
 
@@ -26,22 +39,18 @@ export class BookListComponent implements OnInit {
   loadBooks(): void {
     this.bookService.getBooks().subscribe({
       next: (data) => {
-        console.log(data);
         this.books = data;
       },
-      error: (err) => console.error(err),
+      error: (err) => console.error('Error loading books:', err),
     });
   }
 
   selectBook(book: Book): void {
     this.isNewBook = false;
-    // make a copy
     this.selectedBook = { ...book };
-    // array => string
     this.authorsInput = book.authors.join(', ');
   }
 
-  // empty field for new book
   addNewBook(): void {
     this.isNewBook = true;
     this.selectedBook = {
@@ -59,13 +68,11 @@ export class BookListComponent implements OnInit {
   updateBook(): void {
     if (!this.selectedBook) return;
 
-    // string -> array
     this.selectedBook.authors = this.authorsInput
       .split(',')
       .map((a) => a.trim())
       .filter((a) => a);
 
-    // fieldd Validation ++ alert
     if (
       !this.selectedBook.isbn ||
       !this.selectedBook.title ||
@@ -80,16 +87,14 @@ export class BookListComponent implements OnInit {
     }
 
     if (this.isNewBook) {
-      // Add
       this.bookService.addBook(this.selectedBook).subscribe({
         next: () => {
           this.loadBooks();
           this.selectedBook = null;
         },
-        error: (err) => console.error(err),
+        error: (err) => console.error('Error adding book:', err),
       });
     } else {
-      // Update
       this.bookService
         .updateBook(this.selectedBook.isbn, this.selectedBook)
         .subscribe({
@@ -97,15 +102,14 @@ export class BookListComponent implements OnInit {
             this.loadBooks();
             this.selectedBook = null;
           },
-          error: (err) => console.error(err),
+          error: (err) => console.error('Error updating book:', err),
         });
     }
   }
 
   deleteBook(): void {
-    if (!this.selectedBook) return;
+    if (!this.selectedBook || this.isNewBook) return;
 
-    // Confirm delete -aletr
     if (
       confirm(`Are you sure you want to delete "${this.selectedBook.title}"?`)
     ) {
@@ -114,7 +118,7 @@ export class BookListComponent implements OnInit {
           this.loadBooks();
           this.selectedBook = null;
         },
-        error: (err) => console.error(err),
+        error: (err) => console.error('Error deleting book:', err),
       });
     }
   }
